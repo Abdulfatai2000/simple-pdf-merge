@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Meld Studio · merge & reorder</title>
+    <title>PDF Meld Studio</title>
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -67,6 +67,17 @@
 
     <!-- Modal for final preview & merge -->
     <div id="previewModal" class="modal">
+        <div class="modal-body">
+            <div class="viewer-container">
+                <canvas id="previewCanvas"></canvas>
+                <div class="viewer-nav">
+                    <button id="prevPageBtn" class="btn-nav"><i class="fas fa-chevron-left"></i></button>
+                    <span id="pageIndicator">Page 1 of <span id="totalPages">0</span></span>
+                    <button id="nextPageBtn" class="btn-nav"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+            <!-- optional thumbnail strip can be added later -->
+        </div>
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Final sequence <i class="fas fa-arrow-right"></i> ready to merge</h2>

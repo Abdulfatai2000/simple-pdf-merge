@@ -19,6 +19,14 @@ const closeModal = document.getElementById('closeModal');
 const cancelModal = document.getElementById('cancelModal');
 const mergeBtn = document.getElementById('mergeBtn');
 
+// ==========preview part ========
+let currentPreviewIndex = 0;
+let previewCanvas = document.getElementById('previewCanvas');
+let prevPageBtn = document.getElementById('prevPageBtn');
+let nextPageBtn = document.getElementById('nextPageBtn');
+let pageIndicatorSpan = document.getElementById('pageIndicator');
+let totalPagesSpan = document.getElementById('totalPages');
+
 // ========== INIT ==========
 browseBtn.addEventListener('click', () => fileInput.click());
 dropZone.addEventListener('click', () => fileInput.click());
@@ -246,3 +254,114 @@ function download(data, filename) {
     link.click();
     URL.revokeObjectURL(link.href);
 }
+
+// Select All button
+document.getElementById('selectAllBtn').addEventListener('click', () => {
+    const unselectedPages = pages.filter(p => p.selectedOrder === null);
+    if (unselectedPages.length === 0) return; // all already selected
+    
+    // Append them in the order they appear in the all-pages grid
+    const allThumbs = Array.from(allPagesGrid.children);
+    const orderedUnselected = allThumbs
+        .map(thumb => pages.find(p => p.id === parseInt(thumb.dataset.id)))
+        .filter(p => p && p.selectedOrder === null);
+    
+    orderedUnselected.forEach(page => {
+        // Mark as selected
+        page.selectedOrder = selectedPages.length + 1; // temporary, will renumber
+        selectedPages.push(page);
+        
+        // Add badge to all-pages thumbnail
+        const badge = document.createElement('div');
+        badge.className = 'badge';
+        badge.textContent = page.selectedOrder;
+        page.allThumbEl.appendChild(badge);
+        
+        // Create selected thumbnail
+        const selectedThumb = page.allThumbEl.cloneNode(true);
+        selectedThumb.classList.add('selected');
+        selectedThumb.dataset.id = page.id;
+        // Remove old badge if any (shouldn't exist) and add fresh one
+        const oldBadge = selectedThumb.querySelector('.badge');
+        if (oldBadge) oldBadge.remove();
+        const newBadge = document.createElement('div');
+        newBadge.className = 'badge';
+        newBadge.textContent = page.selectedOrder;
+        selectedThumb.appendChild(newBadge);
+        selectedThumb.style.cursor = 'grab';
+        selectedThumb.addEventListener('click', (e) => e.stopPropagation());
+        
+        selectedGrid.appendChild(selectedThumb);
+        page.selectedThumbEl = selectedThumb;
+    });
+    
+    renumberAll();
+    previewBtn.disabled = selectedPages.length === 0;
+});
+
+// Deselect All button
+document.getElementById('deselectAllBtn').addEventListener('click', () => {
+    if (selectedPages.length === 0) return;
+    
+    // Remove all selected pages
+    selectedPages.forEach(page => {
+        // Remove badge from all-pages thumbnail
+        const badge = page.allThumbEl.querySelector('.badge');
+        if (badge) badge.remove();
+        
+        // Remove selected thumbnail
+        if (page.selectedThumbEl) page.selectedThumbEl.remove();
+        page.selectedThumbEl = null;
+        page.selectedOrder = null;
+    });
+    
+    selectedPages = [];
+    renumberAll(); // clears any remaining numbers
+    previewBtn.disabled = true;
+});
+async function renderPreviewPage(index) {
+    if (!selectedPages.length) return;
+    const pageInfo = selectedPages[index];
+    if (!pageInfo) return;
+    
+    // Load the PDF page
+    const loadingTask = pdfjsLib.getDocument({ data: pageInfo.pdfBytes });
+    const pdf = await loadingTask.promise;
+    const page = await pdf.getPage(pageInfo.pageIndex);
+    
+    // Set canvas size based on viewport (scale for readability)
+    const viewport = page.getViewport({ scale: 1.5 }); // adjust scale as needed
+    const canvas = previewCanvas;
+    const context = canvas.getContext('2d');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    
+    await page.render({ canvasContext: context, viewport }).promise;
+    
+    // Update indicator
+    pageIndicatorSpan.textContent = `Page ${index + 1} of ${selectedPages.length}`;
+    
+    // Enable/disable nav buttons
+    prevPageBtn.disabled = index === 0;
+    nextPageBtn.disabled = index === selectedPages.length - 1;
+}
+
+prevPageBtn.addEventListener('click', async () => {
+    if (currentPreviewIndex > 0) {
+        currentPreviewIndex--;
+        await renderPreviewPage(currentPreviewIndex);
+    }
+});
+
+nextPageBtn.addEventListener('click', async () => {
+    if (currentPreviewIndex < selectedPages.length - 1) {
+        currentPreviewIndex++;
+        await renderPreviewPage(currentPreviewIndex);
+    }
+});
+
+closeModal.addEventListener('click', () => {
+    modal.classList.remove('show');
+    previewCanvas.getContext('2d').clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+});
+// similarly for cancelModal and window click
