@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Meld Studio · merge & reorder</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header with logo -->
+        <header>
+            <div class="logo">
+                <i class="fas fa-object-group"></i>
+                <h1>PDF Meld Studio</h1>
+            </div>
+            <p class="tagline">merge · reorder · perfect</p>
+        </header>
+
+        <!-- Main content -->
+        <main>
+            <!-- Step 1: Upload -->
+            <section id="upload-section" class="step active">
+                <div class="upload-area" id="dropZone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h2>Drop PDFs here or click to browse</h2>
+                    <p>Multiple files allowed · all pages stay private</p>
+                    <input type="file" id="fileInput" accept=".pdf" multiple hidden>
+                    <button class="btn btn-primary" id="browseBtn">Choose files</button>
+                </div>
+            </section>
+
+            <!-- Step 2: Selection & ordering -->
+            <section id="workspace-section" class="step">
+                <div class="workspace">
+                    <div class="panel all-pages">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-files"></i> All pages <span id="pageCount"></span></h3>
+                            <div class="select-actions">
+                                <button class="btn btn-small" id="selectAllBtn"><i class="fas fa-check-square"></i> Select all</button>
+                                <button class="btn btn-small" id="deselectAllBtn"><i class="fas fa-square"></i> Deselect all</button>
+                            </div>
+                        </div>
+                        <div class="thumbnail-grid" id="allPagesGrid"></div>
+                    </div>
+                    <div class="panel selected-pages">
+                        <h3><i class="fas fa-list-ol"></i> Selected pages (drag to reorder)</h3>
+                        <div class="thumbnail-grid" id="selectedGrid"></div>
+                        <div class="action-bar">
+                            <button class="btn btn-primary" id="previewBtn" disabled>
+                                <i class="fas fa-eye"></i> Preview & Merge
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>✦ PDF Meld Studio · craft with care ✦</p>
+        </footer>
+    </div>
+
+    <!-- Modal for final preview & merge -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Final sequence <i class="fas fa-arrow-right"></i> ready to merge</h2>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="preview-grid" id="previewGrid"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelModal">Back</button>
+                <button class="btn btn-primary" id="mergeBtn">
+                    <i class="fas fa-download"></i> Merge & Download
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
