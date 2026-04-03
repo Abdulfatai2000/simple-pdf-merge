@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Meld Studio</title>
+    <title>PDF Meld Studio · Merge PDFs & Images</title>
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="app-container">
-        <!-- Header with logo -->
+        <!-- Header -->
         <header>
             <div class="logo">
                 <i class="fas fa-object-group"></i>
                 <h1>PDF Meld Studio</h1>
             </div>
-            <p class="tagline">merge · reorder · perfect</p>
+            <p class="tagline">merge PDFs & images · reorder · perfect</p>
         </header>
 
         <!-- Main content -->
@@ -26,11 +26,11 @@
             <section id="upload-section" class="step active">
                 <div class="upload-area" id="dropZone">
                     <i class="fas fa-cloud-upload-alt"></i>
-                    <h2>Drop PDFs here or click to browse</h2>
-                    <p>Multiple files allowed · all pages stay private</p>
-                    <input type="file" id="fileInput" accept=".pdf" multiple hidden>
-                    <button class="btn btn-primary" id="browseBtn">Choose files</button>
+                    <h2>Drop PDFs or images here</h2>
+                    <p>PDF · JPG · PNG · GIF · WebP · all private, no upload</p>
+                    <button class="btn btn-primary" id="browseBtn" type="button">Choose files</button>
                 </div>
+                <input type="file" id="fileInput" accept=".pdf,image/jpeg,image/png,image/gif,image/webp" multiple style="display: none;">
             </section>
 
             <!-- Step 2: Selection & ordering -->
@@ -40,16 +40,19 @@
                         <div class="panel-header">
                             <h3><i class="fas fa-files"></i> All pages <span id="pageCount"></span></h3>
                             <div class="select-actions">
-                                <button class="btn btn-small" id="selectAllBtn"><i class="fas fa-check-square"></i> Select all</button>
-                                <button class="btn btn-small" id="deselectAllBtn"><i class="fas fa-square"></i> Deselect all</button>
+                                <button class="btn-small" id="selectAllBtn" type="button"><i class="fas fa-check-square"></i> Select all</button>
+                                <button class="btn-small" id="deselectAllBtn" type="button"><i class="fas fa-square"></i> Deselect all</button>
                             </div>
                         </div>
                         <div class="thumbnail-grid" id="allPagesGrid"></div>
                     </div>
                     <div class="panel selected-pages">
-                        <h3><i class="fas fa-list-ol"></i> Selected pages (drag to reorder)</h3>
+                        <h3><i class="fas fa-list-ol"></i> Selected pages <span style="font-size:0.8rem;">(drag to reorder)</span></h3>
                         <div class="thumbnail-grid" id="selectedGrid"></div>
-                        <div class="action-bar">
+                        <div class="action-bar" style="display: flex; gap: 10px; justify-content: space-between; align-items: center;">
+                            <button class="btn btn-secondary" id="backToHomeBtn">
+                                <i class="fas fa-home"></i> Back to Home
+                            </button>
                             <button class="btn btn-primary" id="previewBtn" disabled>
                                 <i class="fas fa-eye"></i> Preview & Merge
                             </button>
@@ -61,36 +64,63 @@
 
         <!-- Footer -->
         <footer>
-            <p>✦ PDF Meld Studio · craft with care ✦</p>
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <i class="fas fa-magic"></i>
+                    <span>PDF Meld Studio</span>
+                </div>
+                <div class="footer-links">
+                    <a href="#" id="aboutLink"><i class="fas fa-info-circle"></i> About</a>
+                    <a href="#" id="privacyLink"><i class="fas fa-lock"></i> Privacy</a>
+                    <a href="mailto:hello@pdfmeld.studio"><i class="fas fa-envelope"></i> Contact</a>
+                </div>
+                <div class="footer-copyright">
+                    <i class="fas fa-heart" style="color: #ff6b9d;"></i> 2026 · 100% private, no servers
+                </div>
+            </div>
         </footer>
     </div>
 
-    <!-- Modal for final preview & merge -->
+    <!-- Preview Modal -->
     <div id="previewModal" class="modal">
-        <div class="modal-body">
-            <div class="viewer-container">
-                <canvas id="previewCanvas"></canvas>
-                <div class="viewer-nav">
-                    <button id="prevPageBtn" class="btn-nav"><i class="fas fa-chevron-left"></i></button>
-                    <span id="pageIndicator">Page 1 of <span id="totalPages">0</span></span>
-                    <button id="nextPageBtn" class="btn-nav"><i class="fas fa-chevron-right"></i></button>
-                </div>
-            </div>
-            <!-- optional thumbnail strip can be added later -->
-        </div>
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Final sequence <i class="fas fa-arrow-right"></i> ready to merge</h2>
-                <button class="close-btn" id="closeModal">&times;</button>
+                <h2><i class="fas fa-eye"></i> Preview merged document</h2>
+                <button class="close-btn" id="closeModal" type="button">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="preview-grid" id="previewGrid"></div>
+                <div class="viewer-container">
+                    <canvas id="previewCanvas"></canvas>
+                    <div class="viewer-nav">
+                        <button id="prevPageBtn" class="btn-nav" type="button" disabled aria-label="Previous page"><i class="fas fa-chevron-left"></i></button>
+                        <span id="pageIndicator">Page 1 of <span id="totalPages">0</span></span>
+                        <button id="nextPageBtn" class="btn-nav" type="button" disabled aria-label="Next page"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelModal">Back</button>
-                <button class="btn btn-primary" id="mergeBtn">
+                <button class="btn btn-secondary" id="cancelModal" type="button">Back</button>
+                <button class="btn btn-primary" id="mergeBtn" type="button">
                     <i class="fas fa-download"></i> Merge & Download
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content small-modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-object-group"></i> PDF Meld Studio</h2>
+                <button class="close-btn" id="closeAboutModal" type="button">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Version 2.0</strong> · Now with image support!</p>
+                <p>Merge PDFs and images into a single PDF. All processing happens in your browser – nothing is uploaded to any server.</p>
+                <p><i class="fas fa-image"></i> Supported formats: PDF, JPG, PNG, GIF, WebP</p>
+                <p><i class="fas fa-code-branch"></i> Built with PDF.js, PDF-lib, SortableJS</p>
+                <p><i class="fas fa-palette"></i> Designed with 💜 for privacy & ease of use</p>
+                <p style="margin-top: 16px;"><small>© 2026 PDF Meld Studio · All rights reserved</small></p>
             </div>
         </div>
     </div>
